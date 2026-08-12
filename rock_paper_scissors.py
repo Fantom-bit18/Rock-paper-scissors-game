@@ -10,7 +10,10 @@ WINNING_COMBINATIONS = {
 
 def get_user_choice():
     while True:
-        user_input = input("\nВаш выбор (К/Н/Б): ").strip().upper()
+        try:
+            user_input = input("\nВаш выбор (К/Н/Б): ").strip().upper()
+        except (KeyboardInterrupt, EOFError):
+            raise
 
         if not user_input:
             print("Пустой ввод. Пожалуйста, введите К, Н или Б.")
@@ -76,29 +79,49 @@ def print_final_score(user_count, comp_count, ties):
         print("\n\tОй! У вас ничья!")
 
 def play_again():
-    answer = input("\nСыграть ещё раз? (да/нет): ").strip().lower()
+    try:
+        answer = input("\nСыграть ещё раз? (да/нет): ").strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        raise
+        
     return answer in ("да", "д", "yes", "y", "1")
 
 def main():
     print("Добро пожаловать в игру 'Камень, ножницы, бумага'!")
+    print("Нажмите Ctrl+C в любой момент для выхода.\n")
 
-    while True:
-        try:
-            games = int(input("\nВведите количество раундов, которые хотите сыграть: "))
-            if games <= 0:
-                print("Количество раундов должно быть положительным числом.")
+    try:
+        while True:
+            try:
+                games_input = input("\nВведите количество раундов, которые хотите сыграть: ").strip()
+                
+                if not games_input:
+                    print("Вы ничего не ввели. Попробуйте снова.")
+                    continue
+                    
+                games = int(games_input)
+                if games <= 0:
+                    print("Количество раундов должно быть положительным числом.")
+                    continue
+                    
+            except ValueError:
+                print("Неверный ввод. Пожалуйста, введите целое число.")
                 continue
-        except ValueError:
-            print("Неверный ввод. Пожалуйста, введите число.")
-            continue
 
-        user_count, comp_count, ties = play_game(games)
-        print_final_score(user_count, comp_count, ties)
+            user_count, comp_count, ties = play_game(games)
+            print_final_score(user_count, comp_count, ties)
 
-        if not play_again():
-            break
+            if not play_again():
+                break
 
-    print("\nСпасибо за игру! Возвращайтесь снова!")
+    except KeyboardInterrupt:
+        print("\n\nВы прервали выполнение программы. До свидания!")
+    except EOFError:
+        print("\n\nПоток ввода закрыт. До свидания!")
+    except Exception as e:
+        print(f"\nПроизошла непредвиденная критическая ошибка: {e}")
+    finally:
+        print("\nСпасибо за игру! Возвращайтесь снова!")
 
 
 if __name__ == '__main__':
